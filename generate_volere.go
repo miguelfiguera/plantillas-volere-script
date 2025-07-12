@@ -16,14 +16,20 @@ type Requisitos struct {
 	NoFuncionales []NoFuncional `json:"requisitosNoFuncionales"`
 }
 
+// Prioridad representa la prioridad de un requisito junto con su justificación
+type Prioridad struct {
+	Nivel         string `json:"nivel"`
+	Justificacion string `json:"justificacion"`
+}
+
 type Funcional struct {
-	ID                  string   `json:"id"`
-	Nombre              string   `json:"nombre"`
-	Modulo              string   `json:"modulo"`
-	CasoDeUsoId         string   `json:"casoDeUsoId"`
-	Descripcion         string   `json:"descripcion"`
-	Prioridad           string   `json:"prioridad"`
-	CriteriosAceptacion []string `json:"criteriosDeAceptacion"`
+	ID                  string    `json:"id"`
+	Nombre              string    `json:"nombre"`
+	Modulo              string    `json:"modulo"`
+	CasoDeUsoId         string    `json:"casoDeUsoId"`
+	Descripcion         string    `json:"descripcion"`
+	Prioridad           Prioridad `json:"prioridad"`
+	CriteriosAceptacion []string  `json:"criteriosDeAceptacion"`
 }
 
 type NoFuncional struct {
@@ -88,6 +94,12 @@ func buildFunctionalTemplate(rf Funcional) string {
 	criteriosList := ""
 	for _, criterio := range rf.CriteriosAceptacion {
 		criteriosList += fmt.Sprintf("- %s\n", criterio)
+	}
+
+	// Construir representación legible de la prioridad
+	prioridadDisplay := rf.Prioridad.Nivel
+	if rf.Prioridad.Justificacion != "" {
+		prioridadDisplay = fmt.Sprintf("%s - %s", rf.Prioridad.Nivel, rf.Prioridad.Justificacion)
 	}
 
 	template := fmt.Sprintf(`<style>
@@ -261,7 +273,7 @@ Este requisito contribuye a la digitalización y eficiencia operativa del consul
 
 </div>
 
-</div>`, rf.ID, rf.Nombre, rf.Modulo, rf.Prioridad,
+</div>`, rf.ID, rf.Nombre, rf.Modulo, prioridadDisplay,
 		getCasoDeUsoSection(rf.CasoDeUsoId), rf.Descripcion, criteriosList)
 
 	return template
